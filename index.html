@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FPL Analysis & Assistant</title>
+  <!-- Link to the CSS file -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <div class="container">
+    
+    <!-- LOGIN VIEW -->
+    <div id="login-view">
+      <h1>FPL Assistant</h1>
+      <p>Log in using your public FPL Team Code.</p>
+      
+      <div class="form-group">
+        <label for="teamId"><strong>Team ID:</strong></label>
+        <input type="number" id="teamId" placeholder="e.g., 123456" />
+        <span class="error" id="error-msg">Please enter a valid Team ID.</span>
+      </div>
+      
+      <button id="login-btn">Login to Dashboard</button>
+    </div>
+
+    <!-- DASHBOARD VIEW -->
+    <div id="dashboard-view" style="display: none;">
+      <h1>Manager Dashboard</h1>
+      
+      <div class="card">
+        <h2 id="team-name" style="margin-top: 0; color: #37003c;">Loading...</h2>
+        <p><strong>Manager:</strong> <span id="manager-name">-</span></p>
+        <p><strong>Overall Points:</strong> <span id="overall-points">-</span></p>
+        <p><strong>Overall Rank:</strong> <span id="overall-rank">-</span></p>
+      </div>
+
+      <a class="logout" id="logout-btn">← Logout / Change Team</a>
+    </div>
+
+  </div>
+
+  <!-- Link to the JavaScript file -->
+  <script src="app.js"></script>
+</body>
+</html>
