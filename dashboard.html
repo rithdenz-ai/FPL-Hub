@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manager Dashboard - FPL Command Center</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <header class="app-header">
+    <div class="header-inner">
+      <span class="header-brand">FPL Command Center</span>
+      <a class="header-btn" href="index.html" style="text-decoration: none; display: inline-block; text-align: center;">Logout / Change Team</a>
+    </div>
+  </header>
+
+  <div class="container" style="max-width: 1100px;">
+    
+    <!-- MANAGER OVERVIEW HEADER -->
+    <div style="margin-bottom: 25px;">
+      <h1 id="team-name" style="margin-top: 0; color: #00ff85; margin-bottom: 5px;">Loading Team...</h1>
+      <p style="margin: 0; color: #b0b0b0;">Manager: <strong id="manager-name" style="color: #ffffff;">-</strong></p>
+    </div>
+
+    <!-- DASHBOARD WIDGETS GRID -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 25px;">
+      
+      <!-- Live Points & Rank Widget -->
+      <div class="card" style="margin-top: 0;">
+        <h3 style="color: #00ff85; margin-top: 0; font-size: 1rem;">📊 Live Rank & Points</h3>
+        <p><strong>Overall Points:</strong> <span id="overall-points" style="color: #ffffff; font-size: 1.2rem;">-</span></p>
+        <p style="margin-bottom: 0;"><strong>Overall Rank:</strong> <span id="overall-rank" style="color: #ffffff; font-size: 1.2rem;">-</span></p>
+      </div>
+
+      <!-- Squad & Financial Overview -->
+      <div class="card" style="margin-top: 0;">
+        <h3 style="color: #00ff85; margin-top: 0; font-size: 1rem;">💰 Squad & Finances</h3>
+        <p><strong>Squad Value:</strong> <span id="squad-value" style="color: #ffffff;">£100.0m</span></p>
+        <p style="margin-bottom: 0;"><strong>In The Bank:</strong> <span id="bank-balance" style="color: #ffffff;">£0.0m</span></p>
+      </div>
+
+      <!-- Chip Status Panel -->
+      <div class="card" style="margin-top: 0;">
+        <h3 style="color: #00ff85; margin-top: 0; font-size: 1rem;">⚡ Chip Status</h3>
+        <div style="display: flex; flex-direction: column; gap: 6px; font-size: 0.9rem;">
+          <span>Wildcard: <strong style="color: #00ff85;">Available</strong></span>
+          <span>Free Hit: <strong style="color: #00ff85;">Available</strong></span>
+          <span>Bench Boost: <strong style="color: #00ff85;">Available</strong></span>
+          <span>Triple Captain: <strong style="color: #00ff85;">Available</strong></span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- AI ASSISTANT & TACTICAL INSIGHTS -->
+    <div class="card" style="background-color: #242424; border-color: #00ff85; margin-top: 0; margin-bottom: 25px;">
+      <h3 style="color: #00ff85; margin-top: 0;">🤖 AI Tactical Assistant Insights</h3>
+      <p style="margin: 0 0 10px 0; font-size: 0.9rem; color: #d0d0d0;">Based on your current squad structure and upcoming fixture difficulty ratings (FDR):</p>
+      <ul style="margin: 0; padding-left: 20px; font-size: 0.9rem; color: #e8e8e8; line-height: 1.5;">
+        <li>Your team has favorable fixtures over the next 2 gameweeks. Consider holding your free transfer.</li>
+        <li>Captaincy recommendation: Select your highest projected midfielder facing a bottom-half defense.</li>
+      </ul>
+    </div>
+
+    <a class="logout" href="index.html">← Back to Home</a>
+  </div>
+
+  <!-- DASHBOARD SCRIPT -->
+  <script>
+    async function loadDashboardData() {
+      const teamId = localStorage.getItem('fpl_team_id');
+      if (!teamId) {
+        window.location.href = 'index.html';
+        return;
+      }
+
+      try {
+        const fplUrl = `https://fantasy.premierleague.com/api/entry/${teamId}/`;
+        const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(fplUrl)}`;
+        
+        const response = await fetch(proxyUrl);
+        if (!response.ok) throw new Error("Failed to load team data");
+        
+        const data = await response.json();
+        
+        document.getElementById('team-name').innerText = data.name;
+        document.getElementById('manager-name').innerText = `${data.player_first_name} ${data.player_last_name}`;
+        document.getElementById('overall-points').innerText = data.summary_overall_points;
+        document.getElementById('overall-rank').innerText = data.summary_overall_rank ? data.summary_overall_rank.toLocaleString() : "N/A";
+        
+      } catch (err) {
+        document.getElementById('team-name').innerText = "Error Loading Team";
+      }
+    }
+
+    loadDashboardData();
+  </script>
+</body>
+</html>

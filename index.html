@@ -6,42 +6,82 @@
   <title>FPL Analysis & Assistant</title>
     <!-- Link to the CSS file -->
   <link rel="stylesheet" href="styles.css">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
+  <body>
+
+    <header class="app-header">
+    <div class="header-inner">
+      <span class="header-brand">FPL Command Center</span>
+      <button class="header-btn" id="nav-login-btn">Login</button>
+    </div>
+  </header>
+
   <div class="container">
     
-    <!-- LOGIN VIEW -->
-    <div id="login-view">
-      <h1>FPL Assistant</h1>
-      <p>Log in using your public FPL Team Code.</p>
+        <!-- HOME / LANDING VIEW -->
+    <div id="home-view">
+      <h1>FPL Command Center</h1>
+      <p>Unlock deep tactical analysis, live rank tracking, and intelligent assistant insights for your Fantasy Premier League team.</p>
       
-      <div class="form-group">
-        <label for="teamId"><strong>Team ID:</strong></label>
-        <input type="number" id="teamId" placeholder="e.g., 123456" />
-        <span class="error" id="error-msg">Please enter a valid Team ID.</span>
+      <div class="features-list">
+        <div class="feature-item">
+          <h3>📊 Live Rank Tracking</h3>
+          <p>Instantly fetch your overall points and real-time rank updates directly from official FPL data feeds.</p>
+        </div>
+                <div class="feature-item">
+          <h3>🔍 Tactical Team Insights</h3>
+          <p>View complete manager profiles and team breakdowns securely using your unique public Team Code.</p>
+        </div>
+        <div class="feature-item">
+          <h3>🔄 Transfer Planning</h3>
+          <p>Evaluate upcoming fixtures and plan your squad transfers to maximize points every gameweek.</p>
+        </div>
+        <div class="feature-item">
+          <h3>⚡ Chip Strategy Assistant</h3>
+          <p>Get recommendations on when best to deploy your Wildcard, Free Hit, and Bench Boost chips.</p>
+        </div>
       </div>
-      
-      <button id="login-btn">Login to Dashboard</button>
+
+      <button id="get-started-btn" style="width: 100%; margin-top: 20px;">Get Started</button>
     </div>
 
-    <!-- DASHBOARD VIEW -->
-    <div id="dashboard-view" style="display: none;">
-      <h1>Manager Dashboard</h1>
-      
-            <div class="card">
-        <h2 id="team-name" style="margin-top: 0; color: #00ff85;">Loading...</h2>
-        <p><strong>Manager:</strong> <span id="manager-name">-</span></p>
-        <p><strong>Overall Points:</strong> <span id="overall-points">-</span></p>
-        <p><strong>Overall Rank:</strong> <span id="overall-rank">-</span></p>
-      </div>
+                <!-- SEPARATE LOGIN VIEW -->
+        <div id="login-view" style="display: none;">
+          <h1>Manager Login</h1>
+          <p>Enter your public FPL Team Code to access your dashboard.</p>
+   
+          <div class="tutorial-box">
+            <strong>💡 Where is my Team ID?</strong>
+            <ol>
+              <li>Log in to the official Fantasy Premier League website.</li>
+              <li>Click on the <strong>Points</strong> or <strong>Pick Team</strong> tab.</li>
+              <li>Look at your browser's URL address bar: find the number in <code>entry/XXXXXX/event/...</code> — that's your Team ID!</li>
+            </ol>
+          </div>
 
-      <a class="logout" id="logout-btn">← Logout / Change Team</a>
+          <div class="form-group">
+            <label for="teamId"><strong>Team ID:</strong></label>
+            <input type="number" id="teamId" placeholder="e.g., 123456" />
+            <span class="error" id="error-msg">Please enter a valid Team ID.</span>
+          </div>
+          
+          <button id="login-btn">Login to Dashboard</button>
+          <a class="logout" id="back-home-btn" style="display: block; margin-top: 15px; color: #e8e8e8; cursor: pointer;">← Back to Home</a>
+        </div>
+
     </div>
 
+  <!-- LOADING OVERLAY -->
+  <div id="loading-overlay" class="loading-overlay" style="display: none;">
+    <div class="loading-box">
+      <div class="spinner" style="width: 24px; height: 24px; border-width: 3px;"></div>
+      <span id="loading-text">Loading player...</span>
+    </div>
   </div>
 
   <!-- Link to the JavaScript file -->
