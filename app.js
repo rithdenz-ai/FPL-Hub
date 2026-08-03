@@ -27,8 +27,8 @@ async function login() {
   // Hide error message if previously shown
   errorMsg.style.display = 'none';
   
-  // Update UI to show loading state
-  loginBtn.innerText = "Loading...";
+    // Update UI to show loading state with spinner
+  loginBtn.innerHTML = 'Loading <span class="spinner"></span>';
 
     try {
     // We use corsproxy.io to reliably bypass the CORS block on GitHub pages
