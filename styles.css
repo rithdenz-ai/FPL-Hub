@@ -7,12 +7,21 @@ body {
 }
 
 .container {
+  width: 90%;
   max-width: 500px;
   margin: 0 auto;
   background: white;
   padding: 30px;
   border-radius: 12px;
   box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  box-sizing: border-box;
+}
+
+/* Automatically adapt layout for Desktop and larger screens */
+@media (min-width: 768px) {
+  .container {
+    max-width: 800px;
+  }
 }
 
 h1 {

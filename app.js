@@ -30,10 +30,10 @@ async function login() {
   // Update UI to show loading state
   loginBtn.innerText = "Loading...";
 
-  try {
-    // We use allorigins.win to bypass the CORS block on GitHub pages
+    try {
+    // We use corsproxy.io to reliably bypass the CORS block on GitHub pages
     const fplUrl = `https://fantasy.premierleague.com/api/entry/${teamId}/`;
-    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(fplUrl)}`;
+    const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(fplUrl)}`;
     
     const response = await fetch(proxyUrl);
     
