@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Player Profile - FPLWIZ</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header class="app-header">
+    <div class="header-inner">
+      <a href="index.html" class="header-brand" style="color: #ffffff; text-decoration: none;">FPLWIZ</a>
+      <a href="index.html" class="header-menu-btn" style="text-decoration: none;"><i class="fas fa-arrow-left"></i> Back</a>
+    </div>
+  </header>
+
+  <main style="max-width: 900px; margin: 100px auto 40px auto; padding: 0 20px; box-sizing: border-box;">
+    <div id="playerProfileCard" style="background: linear-gradient(135deg, #0A0F1E 0%, #1a1f35 100%); color: #FFFFFF; border-radius: 16px; padding: 30px; box-shadow: 0 8px 25px rgba(110, 15, 215, 0.2); border: 2px solid rgba(175, 120, 255, 0.3); display: flex; flex-direction: column; align-items: center; text-align: center; gap: 16px;">
+      <p>Loading player profile...</p>
+    </div>
+  </main>
+
+  <script>
+    async function loadPlayerProfile() {
+      const params = new URLSearchParams(window.location.search);
+      const playerId = params.get('id');
+      const playerName = params.get('name');
+      const container = document.getElementById('playerProfileCard');
+
+      try {
+        const fplUrl = 'https://fantasy.premierleague.com/api/bootstrap-static/';
+        const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(fplUrl)}`;
+        const res = await fetch(proxyUrl);
+        if (!res.ok) throw new Error('Failed to fetch FPL data');
+        const data = await res.json();
+
+        const positionsMap = { 1: 'Goalkeeper', 2: 'Defender', 3: 'Midfielder', 4: 'Forward' };
+        const teamsMap = {};
+        data.teams.forEach(t => { teamsMap[t.id] = t.name; });
+
+        let player = null;
+        if (playerId) {
+          player = data.elements.find(p => p.id == playerId);
+        } else if (playerName) {
+          player = data.elements.find(p => p.web_name.toLowerCase() === decodeURIComponent(playerName).toLowerCase() || `${p.first_name} ${p.second_name}`.toLowerCase() === decodeURIComponent(playerName).toLowerCase());
+        }
+
+        if (!player) {
+          container.innerHTML = '<h2>Player not found</h2><p>Please return to the dashboard and select another player.</p>';
+          return;
+        }
+
+        const teamName = teamsMap[player.team] || 'Unknown Team';
+        const positionName = positionsMap[player.element_type] || 'Unknown';
+        const price = (player.now_cost / 10).toFixed(1);
+        const selectedBy = player.selected_by_percent || '0.0';
+        const photoUrl = `https://resources.premierleague.com/premierleague/photos/players/110x140/p${player.code || '223456'}.png`;
+
+        container.innerHTML = `
+          <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
+            <span style="font-size: 0.85rem; font-weight: 700; background: rgba(175, 120, 255, 0.2); color: #AF78FF; padding: 6px 14px; border-radius: 20px; text-transform: uppercase;">${teamName}</span>
+            <span style="font-size: 1rem; font-weight: 800; color: #00ff85;">Pos: ${positionName}</span>
+          </div>
+          <div style="width: 120px; height: 120px; border-radius: 50%; background: rgba(175, 120, 255, 0.1); border: 3px solid #AF78FF; display: flex; align-items: center; justifyContent: center; overflow: hidden; margin: 5px 0;">
+            <img src="${photoUrl}" alt="${player.web_name}" onerror="this.src='https://resources.premierleague.com/premierleague/photos/players/110x140/photo-missing.png'" style="width: 100%; height: 100%; object-fit: cover; object-position: top center;">
+          </div>
+          <h1 style="font-size: 2rem; font-weight: 700; margin: 0; color: #FFFFFF;">${player.first_name} ${player.second_name} (${player.web_name})</h1>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; width: 100%; margin-top: 15px; border-top: 1px solid rgba(255, 255, 255, 0.1); padding-top: 20px;">
+            <div style="background: rgba(255,255,255,0.05); padding: 12px; border-radius: 10px;">
+              <div style="font-size: 0.8rem; color: #a0a0ff;">Official Value</div>
+              <div style="font-size: 1.2rem; font-weight: 700; color: #FFFFFF;">£${price}m</div>
+            </div>
+            <div style="background: rgba(255,255,255,0.05); padding: 12px; border-radius: 10px;">
+              <div style="font-size: 0.8rem; color: #a0a0ff;">Manager Ownership</div>
+              <div style="font-size: 1.2rem; font-weight: 700; color: #00ff85;">${selectedBy}%</div>
+            </div>
+          </div>
+        `;
+      } catch (err) {
+        container.innerHTML = '<h2>Error loading player profile</h2><p>Unable to connect to FPL API.</p>';
+      }
+    }
+    loadPlayerProfile();
+  </script>
+</body>
+</html>
