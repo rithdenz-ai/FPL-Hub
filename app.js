@@ -35,6 +35,21 @@ if (menuBtn) menuBtn.addEventListener('click', openDrawer);
 if (drawerCloseBtn) drawerCloseBtn.addEventListener('click', closeDrawer);
 if (drawerBackdrop) drawerBackdrop.addEventListener('click', closeDrawer);
 
+async function fetchFpl(targetUrl) {
+  const proxyUrl = `https://fpl-proxy.harithdanish0309.workers.dev/?url=${encodeURIComponent(targetUrl)}`;
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 3000);
+  try {
+    const res = await fetch(proxyUrl, { signal: controller.signal });
+    clearTimeout(timeoutId);
+    if (res.ok) return res;
+    throw new Error('Proxy returned not ok');
+  } catch (e) {
+    clearTimeout(timeoutId);
+    throw new Error('Proxy failed or timed out');
+  }
+}
+
 // Fetch Live FPL Gameweek Status
 async function fetchLiveGameweek() {
   const statusEl = document.getElementById('gw-status-text');
@@ -42,8 +57,7 @@ async function fetchLiveGameweek() {
 
   try {
     const fplUrl = 'https://fantasy.premierleague.com/api/bootstrap-static/';
-    const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(fplUrl)}`;
-    const response = await fetch(proxyUrl);
+    const response = await fetchFpl(fplUrl);
     if (!response.ok) throw new Error('Failed to fetch FPL data');
     
     const data = await response.json();
@@ -68,19 +82,18 @@ async function fetchTrendingPlayers() {
   if (!tickerTrack) return;
 
   try {
-    const fplUrl = 'https://fantasy.premierleague.com/api/bootstrap-static/';
+        const fplUrl = 'https://fantasy.premierleague.com/api/bootstrap-static/';
     const fixturesUrl = 'https://fantasy.premierleague.com/api/fixtures/';
-    const proxyBootstrap = `https://corsproxy.io/?${encodeURIComponent(fplUrl)}`;
-    const proxyFixtures = `https://corsproxy.io/?${encodeURIComponent(fixturesUrl)}`;
 
     const [resBootstrap, resFixtures] = await Promise.all([
-      fetch(proxyBootstrap),
-      fetch(proxyFixtures).catch(() => null)
+      fetchFpl(fplUrl),
+      fetchFpl(fixturesUrl).catch(() => null)
     ]);
 
-    if (!resBootstrap.ok) throw new Error('Failed to fetch FPL bootstrap data');
+        if (!resBootstrap.ok) throw new Error('Failed to fetch FPL bootstrap data');
 
         const data = await resBootstrap.json();
+    try { localStorage.setItem('fpl_bootstrap_data', JSON.stringify(data)); } catch (e) {}
     if (!data.elements || !data.teams) throw new Error('Invalid data structure');
 
     // Extract and map price data for all players from the official FPL API
