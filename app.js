@@ -1,84 +1,63 @@
-// UI Elements
-const homeView = document.getElementById('home-view');
-const loginView = document.getElementById('login-view');
-const teamInput = document.getElementById('teamId');
-const errorMsg = document.getElementById('error-msg');
-const loginBtn = document.getElementById('login-btn');
-const navLoginBtn = document.getElementById('nav-login-btn');
-const getStartedBtn = document.getElementById('get-started-btn');
-const backHomeBtn = document.getElementById('back-home-btn');
-const loadingOverlay = document.getElementById('loading-overlay');
-const loadingText = document.getElementById('loading-text');
+let lastScrollTop = 0;
+const header = document.querySelector('.app-header');
 
-// Event Listeners for the buttons
-loginBtn.addEventListener('click', login);
-logoutBtn.addEventListener('click', logout);
-navLoginBtn.addEventListener('click', showLoginView);
-getStartedBtn.addEventListener('click', showLoginView);
-backHomeBtn.addEventListener('click', showHomeView);
-
-function showLoginView() {
-  homeView.style.display = 'none';
-  dashboardView.style.display = 'none';
-  loginView.style.display = 'block';
-  errorMsg.style.display = 'none';
-  teamInput.value = '';
-}
-
-function showHomeView() {
-  loginView.style.display = 'none';
-  dashboardView.style.display = 'none';
-  homeView.style.display = 'block';
-}
-
-async function login() {
-  const teamId = teamInput.value.trim();
-  
-  if (!teamId) {
-    showError("Please enter a Team ID.");
-    return;
+window.addEventListener('scroll', function() {
+  let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+  if (scrollTop > lastScrollTop && scrollTop > 50) {
+    // Scroll down - hide header
+    header.classList.add('header-hidden');
+  } else {
+    // Scroll up - show header
+    header.classList.remove('header-hidden');
   }
+    lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
+});
 
-  // Hide error message if previously shown
-  errorMsg.style.display = 'none';
-  
-  // Show full-screen loading overlay with dynamic status updates
-  loadingOverlay.style.display = 'flex';
-  loadingText.innerText = "Loading player...";
+// Side Drawer Navigation Toggle Logic
+const menuBtn = document.querySelector('.header-menu-btn');
+const sideDrawer = document.getElementById('sideDrawer');
+const drawerBackdrop = document.getElementById('drawerBackdrop');
+const drawerCloseBtn = document.getElementById('drawerCloseBtn');
 
-    try {
-    const fplUrl = `https://fantasy.premierleague.com/api/entry/${teamId}/`;
+function openDrawer() {
+  sideDrawer.classList.add('open');
+  drawerBackdrop.classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeDrawer() {
+  sideDrawer.classList.remove('open');
+  drawerBackdrop.classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+if (menuBtn) menuBtn.addEventListener('click', openDrawer);
+if (drawerCloseBtn) drawerCloseBtn.addEventListener('click', closeDrawer);
+if (drawerBackdrop) drawerBackdrop.addEventListener('click', closeDrawer);
+
+// Fetch Live FPL Gameweek Status
+async function fetchLiveGameweek() {
+  const statusEl = document.getElementById('gw-status-text');
+  if (!statusEl) return;
+
+  try {
+    const fplUrl = 'https://fantasy.premierleague.com/api/bootstrap-static/';
     const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(fplUrl)}`;
-    
-    setTimeout(() => { loadingText.innerText = "Loading squad..."; }, 400);
-    
     const response = await fetch(proxyUrl);
+    if (!response.ok) throw new Error('Failed to fetch FPL data');
     
-    if (!response.ok) throw new Error("Team not found");
+    const data = await response.json();
+    const currentEvent = data.events.find(ev => ev.is_current) || data.events.find(ev => ev.is_next);
     
-    setTimeout(() => { loadingText.innerText = "Analyzing stats..."; }, 800);
-        const data = await response.json();
-    
-    // Store team ID and redirect to the separate dashboard file
-    localStorage.setItem('fpl_team_id', teamId);
-    window.location.href = 'dashboard.html';
-    
-  } catch (err) {
-    showError("Could not find team. Check the ID and try again.");
-  } finally {
-    loadingOverlay.style.display = 'none'; // Hide overlay
+    if (currentEvent) {
+      const statusText = currentEvent.is_current ? `GW ${currentEvent.id} Live in Progress` : `GW ${currentEvent.id} Upcoming Deadline`;
+      statusEl.innerText = statusText;
+    } else {
+      statusEl.innerText = 'FPL Season Active';
+    }
+    } catch (err) {
+    statusEl.innerText = 'FPL Gameweek Active';
   }
 }
 
-function logout() {
-  // Reset and switch back to home view
-  teamInput.value = '';
-  dashboardView.style.display = 'none';
-  loginView.style.display = 'none';
-  homeView.style.display = 'block';
-}
-
-function showError(msg) {
-  errorMsg.innerText = msg;
-  errorMsg.style.display = 'block';
-}
+fetchLiveGameweek();
